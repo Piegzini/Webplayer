@@ -1,0 +1,6 @@
+/klient/node_modules
+/server/node_modules
+.idea
+/klient/.idea
+/server/.idea
+/klient/.DS_Store

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin</title>
+    <style>
+      body {
+        margin: 0px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #uploadWrapper {
+        text-align: center;
+        width: 100%;
+        height: 30vh;
+        background-color: red;
+      }
+      #uploadHeader {
+        font-size: 4rem;
+      }
+
+      #filesWrapper {
+        width: 100%;
+        height: 70vh;
+        background-color: green;
+        overflow-y: scroll;
+      }
+      .fileContainer {
+        display: flex;
+        justify-content: left;
+        width: 50%;
+        margin: 40px;
+      }
+
+      .fileContainer img {
+        width: 10%;
+      }
+      .fileContainer p {
+        font-size: 20px;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="uploadWrapper">
+      <h1 id="uploadHeader">Upload</h1>
+    </div>
+    <div id="filesWrapper"></div>
+  </body>
+  <script>
+    const uploadWrapper = document.getElementById('uploadWrapper');
+    const filesWrapper = document.getElementById('filesWrapper');
+    const uploadHeader = document.getElementById('uploadHeader');
+
+    uploadHeader.ondragenter = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      uploadHeader.innerHTML = 'Drop now!!!';
+    };
+    uploadWrapper.ondragover = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    uploadWrapper.ondragleave = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    filesWrapper.ondragover = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadHeader.innerHTML = 'Drag Here!!! Only Here!!!';
+    };
+
+    filesWrapper.ondrop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      uploadHeader.innerHTML = 'Drag Here!!! Only Here!!!';
+    };
+
+    uploadWrapper.ondrop = async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      filesWrapper.innerHTML = ' ';
+      uploadHeader.innerHTML = 'Droped :o ';
+
+      const sendFiles = e.dataTransfer.files;
+      const formData = new FormData();
+
+      for (const file of sendFiles) {
+        console.log(file);
+        formData.append('files', file);
+      }
+
+      uploadHeader.innerHTML = 'Now is sending to serwer';
+      const response = await fetch('http://localhost:3000/sendFiles', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const parsedResponse = await response.json();
+      for (const name of parsedResponse) {
+        const file = document.createElement('div');
+        file.setAttribute('class', 'fileContainer');
+        const image = document.createElement('img');
+        const splitName = name.split('.');
+        const ext = splitName[splitName.length - 1];
+
+        image.src = `http://localhost:3000/image/${ext}`;
+        const paragraph = document.createElement('p');
+        paragraph.innerHTML = `${name}`;
+
+        file.append(image);
+        file.append(paragraph);
+
+        filesWrapper.append(file.cloneNode(true));
+        uploadHeader.innerHTML = 'Send and saved';
+      }
+    };
+  </script>
+</html>
